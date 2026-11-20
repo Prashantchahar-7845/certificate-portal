@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Certificate Verification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #eef4f8;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 1.5rem 1rem 3rem;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Outer Wrapper */
+    .app-wrapper {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Main Floating Card */
+    .verify-card {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 0 1.65rem 2rem;
+      box-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(226, 232, 240, 0.85);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Top Accent Line */
+    .card-top-accent {
+      width: calc(100% - 10px);
+      height: 5px;
+      background: #005f73;
+      border-radius: 4px;
+      margin-top: 14px;
+      margin-bottom: 34px;
+    }
+
+    /* Logo Section (With generous spacing to tick) */
+    .card-logo-wrap {
+      margin-bottom: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .org-logo-img {
+      max-height: 75px;
+      max-width: 170px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Green Tick Sign (Middle alignment) */
+    .success-icon-wrap {
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .checkmark-circle {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 3.5px solid #059669;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      margin: 0 auto;
+    }
+
+    .checkmark-circle svg {
+      width: 32px;
+      height: 32px;
+      color: #059669;
+      display: block;
+    }
+
+    /* Headline */
+    .main-heading {
+      font-size: 1.55rem;
+      font-weight: 800;
+      line-height: 1.25;
+      color: #0a192f;
+      margin-bottom: 14px;
+      letter-spacing: -0.3px;
+    }
+
+    /* Status Pill (Exact match to uploaded image 1) */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      background: #e9faf2;
+      border: 1.5px solid #a4ebcf;
+      padding: 7px 18px;
+      border-radius: 9999px;
+      margin-bottom: 26px;
+    }
+
+    .pill-check-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #059669;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .pill-check-circle svg {
+      width: 11px;
+      height: 11px;
+      color: #ffffff;
+      stroke-width: 3.5;
+    }
+
+    .pill-text {
+      color: #00875a;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+    }
+
+    /* Details Card */
+    .details-box {
+      width: 100%;
+      background: #fbfcfe;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 1.35rem 1.35rem;
+      margin-bottom: 1.4rem;
+      text-align: left;
+    }
+
+    .detail-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .detail-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.35;
+    }
+
+    .email-value {
+      word-break: break-all;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .score-value {
+      color: #059669;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .detail-divider {
+      height: 1px;
+      background: #e5e7eb;
+      margin: 13px 0;
+    }
+
+    /* Primary Navy Button */
+    .btn-verify-another {
+      width: 100%;
+      background-color: #0f2b48;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      margin-bottom: 1.35rem;
+    }
+
+    .btn-verify-another:hover {
+      background-color: #0a1f34;
+    }
+
+    .btn-verify-another:active {
+      transform: scale(0.99);
+    }
+
+    /* Lower Official Portal Footer Text */
+    .card-footer-text {
+      font-size: 0.8rem;
+      color: #64748b;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-footer-text strong {
+      color: #0f2b48;
+      font-weight: 700;
+    }
+
+    /* --- FAILED STATE ELEMENTS (SCREENSHOT 2) --- */
+    .failed-icon-wrap {
+      margin-bottom: 1.25rem;
+    }
+
+    .failed-circle {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: #fee2e2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .failed-circle svg {
+      width: 28px;
+      height: 28px;
+      color: #ef4444;
+    }
+
+    .failed-heading {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+
+    .failed-subtext {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 1.75rem;
+      line-height: 1.5;
+    }
+
+    .btn-retry {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 8px;
+      border: 1.5px solid #3b82f6;
+      background: #ffffff;
+      color: #2563eb;
+      font-size: 0.925rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn-retry svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-retry:hover {
+      background: #eff6ff;
+    }
+
+    /* --- SEARCH DRAWER / INPUT --- */
+    .search-drawer {
+      width: 100%;
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #e2e8f0;
+      text-align: left;
+    }
+
+    .search-drawer-text {
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .drawer-form {
+      display: flex;
+      gap: 6px;
+    }
+
+    .drawer-form input {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .drawer-form input:focus {
+      border-color: #0f2b48;
+    }
+
+    .btn-search-submit {
+      background: #0f2b48;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+    
+    <div class="verify-card">
+      
+      <!-- Top Accent Line -->
+      <div class="card-top-accent"></div>
+
+      <!-- Top Logo Slot (Generous spacing above & below) -->
+      <div class="card-logo-wrap">
+        <img 
+          src="logo.png" 
+          alt="ReadyNest Logo" 
+          class="org-logo-img" 
+          id="portalLogo" 
+          onerror="this.src='logo.jpg'"
+        />
+      </div>
+
+      <!-- VIEW 1: SUCCESSFUL VERIFICATION -->
+      <div id="viewSuccess" style="width: 100%;">
+        
+        <!-- Green Checkmark Circle ("Tick Sign In Middle") -->
+        <div class="success-icon-wrap">
+          <div class="checkmark-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="main-heading">
+          Certificate Verified<br />Successfully
+        </h1>
+
+        <!-- Authentic Certificate Pill (With green checkmark circle inside) -->
+        <div class="status-pill">
+          <div class="pill-check-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pill-text">AUTHENTIC CERTIFICATE</span>
+        </div>
+
+        <!-- Details Card -->
+        <div class="details-box">
+          <div class="detail-row">
+            <span class="detail-label">REFERENCE NUMBER</span>
+            <span class="detail-value" id="cardRef">RN/CERT/2026/OT021</span>
+          </div>
+
+          <div class="detail-divider"></div>
+
+          <div class="detail-row">
+            <span class="detail-label">CANDIDATE NAME</span>
+            <span class="detail-value" id="cardName">Prashant Chahar</span>
+          </div>
+
+          <div class="detail-divider"></div>
+
+          <div class="detail-row">
+            <span class="detail-label">EMAIL ADDRESS</span>
+            <span class="detail-value email-value" id="cardEmail">prashantchahar108@gmail.com</span>
+          </div>
+
+          <div class="detail-divider"></div>
+
+          <div class="detail-row">
+            <span class="detail-label">PERFORMANCE SCORE</span>
+            <span class="detail-value score-value" id="cardScore">59%</span>
+          </div>
+
+          <div class="detail-divider"></div>
+
+          <div class="detail-row">
+            <span class="detail-label">ISSUED BY</span>
+            <span class="detail-value" id="cardIssuedBy">ReadyNest Corp</span>
+          </div>
+        </div>
+
+        <!-- Navy Button: Verify Another Document -->
+        <button class="btn-verify-another" id="btnOpenSearch">
+          Verify Another Document
+        </button>
+
+      </div>
+
+      <!-- VIEW 2: VERIFICATION FAILED -->
+      <div id="viewFailed" style="width: 100%; display: none;">
+        
+        <!-- Red Failed Circle with X -->
+        <div class="failed-icon-wrap">
+          <div class="failed-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+        </div>
+
+        <h2 class="failed-heading">Verification Failed</h2>
+        <p class="failed-subtext" id="failedReason">
+          No record found for Reference<br />No: <span id="failedRefNum">RN/INT/2026/2244</span>
+        </p>
+
+        <!-- Retry Verification Button -->
+        <button class="btn-retry" id="btnRetry">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+          </svg>
+          Retry Verification
+        </button>
+
+      </div>
+
+      <!-- Search Drawer -->
+      <div class="search-drawer" id="searchDrawer" style="display: none;">
+        <p class="search-drawer-text">Enter Reference Number:</p>
+        <form id="searchForm" class="drawer-form">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="e.g. RN/CERT/2026/OT021" 
+            required 
+          />
+          <button type="submit" class="btn-search-submit">Check</button>
+        </form>
+      </div>
+
+      <!-- Lower Official Portal Footer Text -->
+      <p class="card-footer-text">
+        Official Portal &copy; 2026 <strong id="portalFooterName">ReadyNest Corp</strong>
+      </p>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Pure Frontend Logic
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const refParam = urlParams.get('ref');
+      const nameParam = urlParams.get('name');
+      const emailParam = urlParams.get('email');
+      const scoreParam = urlParams.get('score');
+      const issuedByParam = urlParams.get('issuedBy') || urlParams.get('issued_by');
+      const statusParam = urlParams.get('status');
+
+      const viewSuccess = document.getElementById('viewSuccess');
+      const viewFailed = document.getElementById('viewFailed');
+      const searchDrawer = document.getElementById('searchDrawer');
+      const searchForm = document.getElementById('searchForm');
+      const searchInput = document.getElementById('searchInput');
+      const btnOpenSearch = document.getElementById('btnOpenSearch');
+      const btnRetry = document.getElementById('btnRetry');
+
+      const defaultRecord = {
+        ref: refParam || 'RN/CERT/2026/OT021',
+        name: nameParam || 'Prashant Chahar',
+        email: emailParam || 'prashantchahar108@gmail.com',
+        score: scoreParam ? (scoreParam.includes('%') ? scoreParam : scoreParam + '%') : '59%',
+        issuedBy: issuedByParam || 'ReadyNest Corp'
+      };
+
+      if (statusParam === 'failed') {
+        showFailedView(refParam || 'RN/INT/2026/2244');
+      } else {
+        showSuccessView(defaultRecord);
+      }
+
+      btnOpenSearch.addEventListener('click', () => {
+        searchDrawer.style.display = searchDrawer.style.display === 'none' ? 'block' : 'none';
+        if (searchDrawer.style.display === 'block') {
+          searchInput.focus();
+        }
+      });
+
+      btnRetry.addEventListener('click', () => {
+        viewFailed.style.display = 'none';
+        viewSuccess.style.display = 'block';
+        searchDrawer.style.display = 'block';
+        searchInput.focus();
+      });
+
+      searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const entered = searchInput.value.trim();
+        if (!entered) return;
+
+        if (entered.toLowerCase() === defaultRecord.ref.toLowerCase()) {
+          showSuccessView(defaultRecord);
+        } else {
+          showFailedView(entered);
+        }
+      });
+
+      function showSuccessView(data) {
+        viewSuccess.style.display = 'block';
+        viewFailed.style.display = 'none';
+        searchDrawer.style.display = 'none';
+
+        document.getElementById('cardRef').textContent = data.ref;
+        document.getElementById('cardName').textContent = data.name;
+        document.getElementById('cardEmail').textContent = data.email;
+        document.getElementById('cardScore').textContent = data.score;
+        document.getElementById('cardIssuedBy').textContent = data.issuedBy;
+        document.getElementById('portalFooterName').textContent = data.issuedBy;
+      }
+
+      function showFailedView(refNumber) {
+        viewSuccess.style.display = 'none';
+        viewFailed.style.display = 'block';
+        searchDrawer.style.display = 'none';
+
+        document.getElementById('failedRefNum').textContent = refNumber;
+      }
+    })();
+  </script>
+
+</body>
+</html>
